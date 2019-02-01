@@ -1,0 +1,157 @@
+/******************************************************************************
+ *  Relatório do Trabalho 3 -- ED2 -- 2018/2
+ *  Password Cracking
+ *****************************************************************************/
+
+Nome 1: Leonardo Khoury Picoli
+Nome 2: Matheus Salomao
+SO utilizado: Ubuntu Linux 18.04
+Versão do compilador utilizado: gcc 7.3.0
+Editor(es) de código utilizado(s): Visual Studio
+Número de horas gastas para fazer o trabalho (aproximado): 25h
+
+/******************************************************************************
+ *  Se você usou o arquivo key.c, descreva qualquer modificação/otimização que
+ *  você tenha feito no código. Se você não utilizou key.c, descreva a
+ *  estrutura de dados que você utilizou para manipular as senhas.
+ *****************************************************************************/
+ Foram adicionadas as seguintes funções:
+    Key sub(Key a, Key b): Retorna a - b (mod 2^N).
+        
+    int equals(Key a, Key b): Retorna 1(true) caso sejam iguais e 0(false) 
+    caso contrário.
+
+    int compare(Key a, Key b): Retorna 1 caso a > b, retorna -1 caso a < b e 
+    retorna 0 caso sejam iguais.
+
+    int hash_key(Key a): Retorna um inteiro usado como índice para a tabela hash.
+
+/******************************************************************************
+ *  Descreva a sua solução força bruta (brute.c) .
+ *****************************************************************************/
+    Dada uma senha encriptada de tamanho C, consideramos uma string inicial 
+    formada por C caracteres 'a' e uma string final formada por C caracteres 
+    '5', utilizando uma string como iterador formada por C-1 caracteres 'a' 
+    com um caractere 'b' na última posição. Enquanto a string inicial for 
+    diferente da string final, somamos a string inicial e a string iteradora 
+    e verificamos se a encriptação do resultado dessa soma corresponde a string 
+    passada como parâmetro inicialmente. Caso elas sejam iguais, isso quer dizer 
+    que ela representa uma possível senha válida,e portanto, ela será exibida
+    na saída padrão.
+
+
+/******************************************************************************
+ *  Faça uma descrição de alto nível do seu programa de quebra de senha
+ *  (decrypt.c).
+ *****************************************************************************/
+    O programa inicialmente realiza a combinação da primeira metada da palavra,
+    com força bruta, e guarda essas combinações juntamente com a versão encriptada
+    dessas em uma hash, onde a chave é a versão encriptada.
+    Em seguida são realizadas as combinações da segunda metada da palavra (só a
+    segunda metada varia), encripta-as, então subtrai a senha encriptada fornecida
+    na linha de comando, obtendo uma outra 'Key', essa key obtida é buscada na hash
+    e caso seja encontrada é feita a soma da versão original dessa key (guardada 
+    junto na hash) com a combinação atual, resultando em uma possível senha, que é 
+    exibida na saída padrão.
+    Todas as chaves já exibidas são inseridas em um vetor estático. Caso a possível
+    nova senha ja esteja no vetor, ela é ignorada.
+
+/******************************************************************************
+ *  Descreva a implementação da tabela de símbolos que você utilizou em
+ *  decrypt.c .
+ *****************************************************************************/
+
+    Uma tabela hash que trata colisões como árvores binárias de busca, inserindo
+    chaves repetidas na esquerda.
+
+/******************************************************************************
+ *  Liste abaixo as versões não criptografadas das senhas fornecidas na
+ *  especificação do trabalho. Faça isso SOMENTE se você foi capaz de quebrar
+ *  as senhas usando o SEU código.
+ *****************************************************************************/
+
+8 caracteres         10 caracteres          12 caracteres
+------------         -------------          -------------
+password              password10            
+
+leonardo              matheus250
+
+vinicius              senhafacil
+
+
+/******************************************************************************
+ *  Quanto tempo a versão força bruta leva para quebrar as senhas de um dado
+ *  tamanho? Forneça estimativas com um asterisco se o programa levar mais do
+ *  que a sua paciência (por exemplo, um ou dois minutos). Justifique as suas
+ *  estimativas.
+ *****************************************************************************/
+
+Tamanho     Tempo (segundos)
+----------------------------
+ 4              0,288s      
+ 5              9,239s      
+ 6            371,231s      
+ 8           301989,8s(*)   
+
+(*) Dado os testes realizados, vimos que para cada combinação eram gastas 
+    2.74658203125e-07 segundos. Visto que no caso de tamanho 8 ele fará
+    32^8 combinações, nossa estimativa é de (2.74658203125e-07)*(32^8),
+    que é 301989,888 segundos.
+
+
+/******************************************************************************
+ *  Quanto tempo decrypt.c leva para quebrar as senhas de um dado tamanho?
+ *  Quanto de memória o programa utiliza? Forneça estimativas com um asterisco
+ *  se o programa levar mais que a sua paciência ou utilizar mais memória que
+ *  o seu sistema possui. Justifique as suas estimativas.
+ *****************************************************************************/
+
+Tamanho    Tempo (segundos)    Memória (bytes)
+----------------------------------------------
+ 6              0,128s          1.473.308 bytes  
+ 8              1,761s         42.075.104 bytes
+10             75,129s      1,529,726,920 bytes
+12           4194,304s(*)   6,548,864,546 bytes(*)                                
+
+(*) Os valores para o tamanho 12 correspondem a uma estimativa feita através dos
+dados calculados nos casos anteriores.    
+
+/******************************************************************************
+ *  Quantas operações brute.c faz sobre uma senha com N bits?
+ *  Quantas operações decrypt.c faz sobre uma senha com N bits?
+ *  Utilize a notação de big-Oh nas suas respostas.
+ *****************************************************************************/
+    O brute force realiza O(2^N) operações, pois no loop principal ele calcula todas
+    as combinações possíveis de tamanho C e encripta-as. 
+
+    O decrypt realiza O(2^(N/2)) operações, pois ele possui dois loops onde em
+    cada um ele calcula todas as combinações da metade da palavra(mantendo uma metade
+    sempre como 'a') e faz 2^(N/2) acessos à hash, porém essa não é a operação mais 
+    custosa, mas a encriptação das combinações calculadas.
+
+
+/******************************************************************************
+ *  Descreva qualquer problema grave que você encontrou ao desenvolver
+ *  o trabalho.
+ *****************************************************************************/
+    O número absurdo de combinações possíveis criou a necessidade em dividir a 
+    chave em duas partes, porém ainda são realizadas muitas operações de subset_sum.
+
+    Uma vez que chaves diferentes podem resultar na mesma encriptação(acontece muito
+    nas easy.txt) 
+
+
+/******************************************************************************
+ *  Deixe qualquer outro comentário aqui. Fique à vontade para dar um feedback
+ *  sobre o quanto você acha que aprendeu com esse trabalho, e se você gostou
+ *  de fazê-lo.
+ *****************************************************************************/
+
+    Resolvemos deixar o MakeFile compilando com a flag -O3 devido a demora para
+    execução do código quando compilado sem essa flag, sabemos que ele aplica uma
+    otmização agressiva, mas nos testes realizados não apresentou problema, então
+    optamos por deixar.
+    Também estamo compilando com a flag -w uma vez que os warnings foram analizados
+    e por não impactarem no código, achamos que "suja" muito a saída padrão sem
+    acrescentar muito, durante a correção o professor é livre para retirá-los caso
+    assim preferir.
